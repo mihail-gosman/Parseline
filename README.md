@@ -20,8 +20,6 @@ CLIParser is a simple C library for parsing command-line input. It provides func
 - [Usage](#usage)
   - [Include in Your Project](#include-in-your-project)
   - [Examples](#examples)
-- [Documentation](#documentation)
-- [Contributing](#contributing)
 - [License](#license)
 
 ## Getting Started
@@ -36,12 +34,14 @@ Clone the repository to your local machine:
 
 ```bash
 git clone https://github.com/mihail-gosman/CLIParser.git
+```bash
 
 ### Usage
 
 ## Include in your project
 ```bash
 #include "CLIParser.h"
+```bash
 
 ### Examples
 Here is a simple example demonstrating how to use CLIParser to parse a command:
