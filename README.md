@@ -34,15 +34,42 @@ Clone the repository to your local machine:
 
 ```bash
 git clone https://github.com/mihail-gosman/CLIParser.git
-```bash
+```
 
-### Usage
+## Usage
 
-## Include in your project
-```bash
+### Include in your project
+```c
 #include "CLIParser.h"
-```bash
+```
 
 ### Examples
 Here is a simple example demonstrating how to use CLIParser to parse a command:
+```c
+#include "CLIParser.h"
+#include <stdio.h>
 
+int main() {
+    char input[MAX_INPUT_LENGTH];
+    ParsedCommand parsedCommand;
+
+    printf("Enter command: ");
+    fgets(input, sizeof(input), stdin);
+
+    // Remove the newline character at the end of the input
+    input[strcspn(input, "\n")] = '\0';
+
+    parseInput(input, &parsedCommand);
+
+    // Display parsed command and arguments
+    printf("Command: %s\n", parsedCommand.command);
+    printf("Arguments (%d):\n", parsedCommand.numArgs);
+    for (int i = 0; i < parsedCommand.numArgs; i++) {
+        printf("  %d: %s\n", i + 1, parsedCommand.args[i]);
+    }
+
+    return 0;
+}
+```
+## Licence
+This project is licensed under the MIT License - see the LICENSE file for details.
