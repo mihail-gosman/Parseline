@@ -36,3 +36,13 @@ Clone the repository to your local machine:
 
 ```bash
 git clone https://github.com/mihail-gosman/CLIParser.git
+
+### Usage
+
+## Include in your project
+```bash
+#include "CLIParser.h"
+
+### Examples
+Here is a simple example demonstrating how to use CLIParser to parse a command:
+
