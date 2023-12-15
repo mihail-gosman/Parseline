@@ -56,30 +56,31 @@ CLIParser is a simple C library for parsing command-line input. It provides a he
     }
     ```
 
-5. **Use the library in your main loop:**
+5. **Example `ParsedCommand` and `parseInput` Usage:**
 
     ```c
     int main() {
-        // Your main code here
+        // Example usage of ParsedCommand and parseInput
+        char input[] = "print Hello World";
+        ParsedCommand parsedCommand;
 
-        while (1) {
-            // Get input from the user and parse it
-            // ...
-
-            // Find and execute the command
-            if (executeCommand(&parsedCommand, commandDictionary, sizeof(commandDictionary) / sizeof(commandDictionary[0])) != 0) {
-                printf("Command not found: %s\n", parsedCommand.command);
+        // Parse input
+        if (parseInput(input, &parsedCommand) == 0) {
+            // Access parsed data
+            printf("Command: %s\n", parsedCommand.command);
+            for (int i = 0; i < parsedCommand.numArgs; ++i) {
+                printf("Argument %d: %s\n", i + 1, parsedCommand.args[i]);
             }
+        } else {
+            printf("Error parsing input\n");
         }
 
         return 0;
     }
     ```
 
+For a more detailed example of using `ParsedCommand` and `parseInput`, refer to the `examples` folder in this repository.
+
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## Acknowledgments
-
-- Inspired by [your-inspiration](https://github.com/your-inspiration)'s awesome projects.
