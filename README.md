@@ -1,75 +1,86 @@
-# CLIParser - Command Line Parser Library
+# CLIParser
 
-[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-
-## Description
-
-CLIParser is a simple C library for parsing command-line input. It provides functionality to parse commands and their arguments, offering a convenient way to extract information from user input.
+CLIParser is a simple C library for parsing command-line input. It provides a header file, `CLIParser.h`, that defines structures and functions for parsing and handling command-line input in a modular way.
 
 ## Features
 
-- Parses commands and their arguments from user input.
-- Supports a maximum number of arguments per command.
-- Provides a clear structure for storing parsed command information.
-
-## Table of Contents
-
-- [Getting Started](#getting-started)
-  - [Prerequisites](#prerequisites)
-  - [Installation](#installation)
-- [Usage](#usage)
-  - [Include in Your Project](#include-in-your-project)
-  - [Examples](#examples)
-- [License](#license)
-
-## Getting Started
-
-### Prerequisites
-
-Make sure you have a C compiler installed on your system.
-
-### Installation
-
-Clone the repository to your local machine:
-
-```bash
-git clone https://github.com/mihail-gosman/CLIParser.git
-```
+- Parse command strings into a structured format.
+- Define command handlers for easy extensibility.
+- Simple and lightweight design.
 
 ## Usage
 
-### Include in your project
-```c
-#include "CLIParser.h"
-```
+1. **Clone the repository:**
 
-### Examples
-Here is a simple example demonstrating how to use CLIParser to parse a command:
-```c
-#include "CLIParser.h"
-#include <stdio.h>
+    ```bash
+    git clone https://github.com/yourusername/CLIParser.git
+    ```
 
-int main() {
-    char input[MAX_INPUT_LENGTH];
-    ParsedCommand parsedCommand;
+2. **Include `CLIParser.h` in your C source code:**
 
-    printf("Enter command: ");
-    fgets(input, sizeof(input), stdin);
+    ```c
+    #include "CLIParser.h"
+    ```
 
-    // Remove the newline character at the end of the input
-    input[strcspn(input, "\n")] = '\0';
+3. **Define command handlers and create a command dictionary:**
 
-    parseInput(input, &parsedCommand);
+    ```c
+    // Forward declarations of command handlers
+    void helpCommandHandler(const ParsedCommand *command);
+    void printCommandHandler(const ParsedCommand *command);
+    void exitCommandHandler(const ParsedCommand *command);
 
-    // Display parsed command and arguments
-    printf("Command: %s\n", parsedCommand.command);
-    printf("Arguments (%d):\n", parsedCommand.numArgs);
-    for (int i = 0; i < parsedCommand.numArgs; i++) {
-        printf("  %d: %s\n", i + 1, parsedCommand.args[i]);
+    // Command dictionary
+    CommandEntry commandDictionary[] = {
+        {"help", helpCommandHandler},
+        {"print", printCommandHandler},
+        {"exit", exitCommandHandler},
+        // Add more entries as needed
+    };
+    ```
+
+4. **Implement your command handlers:**
+
+    ```c
+    // Command handlers
+    void helpCommandHandler(const ParsedCommand *command) {
+        // Your help command logic here
     }
 
-    return 0;
-}
-```
-## Licence
-This project is licensed under the MIT License - see the LICENSE file for details.
+    void printCommandHandler(const ParsedCommand *command) {
+        // Your print command logic here
+    }
+
+    void exitCommandHandler(const ParsedCommand *command) {
+        // Your exit command logic here
+    }
+    ```
+
+5. **Example `ParsedCommand` and `parseInput` Usage:**
+
+    ```c
+    int main() {
+        // Example usage of ParsedCommand and parseInput
+        char input[] = "print Hello World";
+        ParsedCommand parsedCommand;
+
+        // Parse input
+        if (parseInput(input, &parsedCommand) == 0) {
+            // Access parsed data
+            printf("Command: %s\n", parsedCommand.command);
+            for (int i = 0; i < parsedCommand.numArgs; ++i) {
+                printf("Argument %d: %s\n", i + 1, parsedCommand.args[i]);
+            }
+        } else {
+            printf("Error parsing input\n");
+        }
+
+        return 0;
+    }
+    ```
+
+For a more detailed example of using `ParsedCommand` and `parseInput`, refer to the `examples` folder in this repository.
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
