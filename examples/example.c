@@ -25,7 +25,7 @@ void helpCommandHandler(const ParsedCommand *command)
 
 void printCommandHandler(const ParsedCommand *command)
 {
-    printf("Print command executed");
+     printf("Print command executed\n");
     // Add your print command logic here
 }
 
