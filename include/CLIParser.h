@@ -7,6 +7,10 @@
 
 #include <stdio.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 // Definition of the ParsedCommand structure
 typedef struct
 {
@@ -27,5 +31,9 @@ int parseInput(const char*, ParsedCommand*);
 
 // Function to find and execute the command
 int executeCommand(const ParsedCommand*, CommandEntry*, size_t);
+
+#ifdef __cplusplus
+} // extern "C"
+#endif
 
 #endif // CLIPARSER_H_INCLUDED
