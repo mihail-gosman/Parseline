@@ -1,33 +1,33 @@
 #include "CLIParser.h"
 
 // Function to parse input and fill the ParsedCommand structure
-int parseInput(const char *input, ParsedCommand *parsedCommand)
+int parseInput(char *input, ParsedCommand *parsedCommand)
 {
     int inputIndex = 0;
     int commandIndex = 0;
     int argIndex = 0;
 
     // Parse the command
-    while (input[inputIndex] != ' ' && input[inputIndex] != '\0')
+    while (*input != ' ' && *input != '\0')
     {
-        parsedCommand->command[commandIndex++] = input[inputIndex++];
+        parsedCommand->command[commandIndex++] = *input++;
     }
     parsedCommand->command[commandIndex] = '\0';
 
     // Parse the arguments
-    while (input[inputIndex] != '\0')
+    while (*input != '\0')
     {
         // Skip spaces
-        while (input[inputIndex] == ' ')
+        while (*input == ' ')
         {
-            inputIndex++;
+            input++;
         }
 
         // Parse the argument
         commandIndex = 0;
-        while (input[inputIndex] != ' ' && input[inputIndex] != '\0')
+        while (*input != ' ' && *input != '\0')
         {
-            parsedCommand->args[argIndex][commandIndex++] = input[inputIndex++];
+            parsedCommand->args[argIndex][commandIndex++] = *input++;
         }
         parsedCommand->args[argIndex][commandIndex] = '\0';
         argIndex++;
