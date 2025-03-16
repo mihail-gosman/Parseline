@@ -1,18 +1,25 @@
 #include "CLIParser.h"
+#include <stdio.h>
+#include <string.h>
 
-// Function to parse input and fill the ParsedCommand structure
 int parseInput(char *input, ParsedCommand *parsedCommand)
 {
-    int inputIndex = 0;
-    int commandIndex = 0;
     int argIndex = 0;
+    int charIndex = 0;
+    int insideQuotes = 0;
+    int escapeNext = 0;
 
-    // Parse the command
+    // Initialize the parsedCommand structure
+    parsedCommand->numArgs = 0;
+    memset(parsedCommand->command, 0, MAX_ARG_LENGTH);
+    memset(parsedCommand->args, 0, sizeof(parsedCommand->args));
+
+    // Parse the command (first word before a space)
     while (*input != ' ' && *input != '\0')
     {
-        parsedCommand->command[commandIndex++] = *input++;
+        parsedCommand->command[charIndex++] = *input++;
     }
-    parsedCommand->command[commandIndex] = '\0';
+    parsedCommand->command[charIndex] = '\0';
 
     // Parse the arguments
     while (*input != '\0')
@@ -23,38 +30,60 @@ int parseInput(char *input, ParsedCommand *parsedCommand)
             input++;
         }
 
-        // Parse the argument
-        commandIndex = 0;
-        while (*input != ' ' && *input != '\0')
+        // If we reach end after skipping spaces, break
+        if (*input == '\0')
+            break;
+
+        // Start parsing argument
+        charIndex = 0;
+        insideQuotes = (*input == '"') ? 1 : 0;
+        if (insideQuotes)
+            input++; // Skip opening quote
+
+        while (*input != '\0' && (insideQuotes || *input != ' '))
         {
-            parsedCommand->args[argIndex][commandIndex++] = *input++;
+            if (*input == '\\' && !escapeNext) // Handle escape character
+            {
+                escapeNext = 1;
+                input++;
+                continue;
+            }
+
+            if (*input == '"' && !escapeNext) // Handle closing quote
+            {
+                insideQuotes = 0;
+                input++;
+                break;
+            }
+
+            parsedCommand->args[argIndex][charIndex++] = *input++;
+            escapeNext = 0;
         }
-        parsedCommand->args[argIndex][commandIndex] = '\0';
+        parsedCommand->args[argIndex][charIndex] = '\0';
         argIndex++;
 
         // Check if the maximum number of arguments is reached
         if (argIndex >= MAX_ARGS)
         {
-            return 1; // Return 1 to indicate an error (too many arguments)
+            return 1; // Error: Too many arguments
         }
     }
 
     parsedCommand->numArgs = argIndex;
-
-    return 0; // Return 0 to indicate successful parsing
+    return 0; // Success
 }
 
-// Function to find and execute the command
 int executeCommand(const ParsedCommand *parsedCommand, CommandEntry *commandDictionary, size_t dictionarySize)
 {
-    for (size_t i = 0; i < dictionarySize; ++i)
+    for (size_t i = 0; i < dictionarySize; i++)
     {
         if (strcmp(parsedCommand->command, commandDictionary[i].command) == 0)
         {
             commandDictionary[i].handler(parsedCommand);
-            return 0; // Return 0 to indicate successful command execution
+            return 0; // Command executed successfully
         }
     }
 
-    return 1; // Return 1 to indicate that the command was not found
+    printf("Error: Command '%s' not found!\n", parsedCommand->command);
+    return 1; // Command not found
 }

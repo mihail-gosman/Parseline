@@ -1,63 +1,54 @@
 #include <stdio.h>
-#include <stdlib.h>
+#include <string.h>
 #include "CLIParser.h"
 
-
-// Forward declarations of command handlers
-void helpCommandHandler(const ParsedCommand *command);
-void printCommandHandler(const ParsedCommand *command);
-void exitCommandHandler(const ParsedCommand *command);
-
-// Command dictionary
-CommandEntry commandDictionary[] = {
-    {"help", helpCommandHandler},
-    {"print", printCommandHandler},
-    {"exit", exitCommandHandler},
-    // Add more entries as needed
-};
-
-// Command handlers
-void helpCommandHandler(const ParsedCommand *command)
+// Example command handlers
+void sampleCommandHandler(const ParsedCommand *cmd)
 {
-    printf("Help command executed\n");
-    // Add your help command logic here
-}
-
-void printCommandHandler(const ParsedCommand *command)
-{
-     printf("Print command executed\n");
-    // Add your print command logic here
-}
-
-void exitCommandHandler(const ParsedCommand *command)
-{
-    printf("Exit command executed\n");
-    // Add your exit command logic here
+    printf("Executing command: %s\n", cmd->command);
+    printf("Arguments (%d):\n", cmd->numArgs);
+    for (int i = 0; i < cmd->numArgs; i++)
+    {
+        printf("  Arg %d: %s\n", i + 1, cmd->args[i]);
+    }
 }
 
 int main()
 {
     char input[MAX_INPUT_LENGTH];
+    ParsedCommand parsedCommand;
 
+    // Define available commands
+    CommandEntry commands[] = {
+        {"test", sampleCommandHandler}, // Example command "test"
+        {"run", sampleCommandHandler}   // Example command "run"
+    };
+
+    size_t commandCount = sizeof(commands) / sizeof(commands[0]);
+
+    // Main loop to accept user input
     while (1)
     {
-        // Get input from the user
-        printf("Enter command: ");
-        fgets(input, sizeof(input), stdin);
-        input[strcspn(input, "\n")] = '\0'; // Remove the newline character from input
+        printf("\nEnter command: ");
+        if (fgets(input, sizeof(input), stdin) == NULL)
+        {
+            break; // Exit on input failure
+        }
 
-        // Parse the input
-        ParsedCommand parsedCommand;
+        // Remove newline character from input
+        input[strcspn(input, "\n")] = 0;
+
+        // Parse input
         if (parseInput(input, &parsedCommand) != 0)
         {
-            printf("Error parsing input\n");
+            printf("Error: Too many arguments!\n");
             continue;
         }
 
-        // Find and execute the command using the external function
-        if (executeCommand(&parsedCommand, commandDictionary, sizeof(commandDictionary) / sizeof(commandDictionary[0])) != 0)
+        // Execute command
+        if (executeCommand(&parsedCommand, commands, commandCount) != 0)
         {
-            printf("Command not found: %s\n", parsedCommand.command);
+            printf("Error: Command not found!\n");
         }
     }
 
