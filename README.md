@@ -1,6 +1,6 @@
-# CLIParser
+# EasyCLI
 
-CLIParser is a lightweight command-line argument parser for C programs. It processes user input, extracts commands and arguments, and executes predefined command handlers.
+**EasyCLI** is a lightweight command-line argument parser for C programs. It processes user input, extracts commands and arguments, and executes predefined command handlers, making it easier to integrate a command-line interface into your application.
 
 ## Features
 - Parses commands and arguments from user input.
@@ -12,15 +12,15 @@ CLIParser is a lightweight command-line argument parser for C programs. It proce
 ## Installation
 Clone the repository:
 ```sh
-git clone https://github.com/yourusername/CLIParser.git
-cd CLIParser
+git clone https://github.com/yourusername/EasyCLI.git
+cd EasyCLI
 ```
 
 ## Usage
 ### 1. Include the Header File
-Include `CLIParser.h` in your project:
+Include `EasyCLI.h` in your project:
 ```c
-#include "CLIParser.h"
+#include "EasyCLI.h"
 ```
 
 ### 2. Define Command Handlers
@@ -38,7 +38,7 @@ void sampleCommandHandler(const ParsedCommand *cmd)
 
 ### 3. Initialize Commands in `example.c`
 ```c
-#include "CLIParser.h"
+#include "EasyCLI.h"
 #include <stdio.h>
 #include <string.h>
 
@@ -74,10 +74,9 @@ int main()
 
 ### 4. Compile and Run
 ```sh
-gcc example.c CLIParser.c -o cli_parser
-./cli_parser
+gcc example.c EasyCLI.c -o easy_cli
+./easy_cli
 ```
 
 ## License
 This project is licensed under the MIT License.
-
