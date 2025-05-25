@@ -4,28 +4,56 @@
 #include <string>
 #include <vector>
 #include <functional>
-#include <unordered_map>
+#include <regex>
 #include <iostream>
-#include <sstream>
 
-struct Command {
-    std::string name;
-    std::string description;
-    std::function<void(const std::vector<std::string>&)> action; // Function that runs when command is executed
-};
-
-class CommandRegistry {
-private:
-    std::unordered_map<std::string, Command> commands;
-
+class CommandPattern
+{
 public:
-    void register_command(const Command& cmd);
+    using Callback = std::function<void(const std::vector<std::string>& args)>;
 
-    bool execute_command(const std::string& input_line);
+    CommandPattern(std::string regexPattern,
+                   std::string description,
+                   Callback callback);
 
-    void print_help() const;
+    bool matches(const std::string& input, std::vector<std::string>& extractedArgs) const;
+
+    void execute(const std::vector<std::string>& args) const;
+
+    const std::string& getDescription() const;
+    const std::string& getRegexPattern() const;
+
+private:
+    std::string _regexPattern;
+    std::string _description;
+    Callback _callback;
+    std::regex _regex;
 };
 
-void run_repl(CommandRegistry& registry);
+class CommandDispatcher
+{
+public:
+    void registerCommand(const CommandPattern& command);
+
+    bool dispatch(const std::string& input);
+
+    void printHelp() const;
+
+private:
+    std::vector<CommandPattern> _commands;
+};
+
+class CommandREPL
+{
+public:
+    CommandREPL(CommandDispatcher& dispatcher,
+                std::string prompt = "> ");
+
+    void run();
+
+private:
+    CommandDispatcher& _dispatcher;
+    std::string _prompt;
+};
 
 #endif // PARSELINE_H
