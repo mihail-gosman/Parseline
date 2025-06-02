@@ -1,59 +1,40 @@
-#ifndef PARSELINE_H
-#define PARSELINE_H
+#ifndef PARSELINE_HPP
+#define PARSELINE_HPP
 
-#include <string>
-#include <vector>
+#include "argparser.hpp"
+#include "command_history.hpp"
+#include "command_help.hpp"
+#include "command_suggester.hpp"
 #include <functional>
 #include <regex>
-#include <iostream>
+#include <string>
+#include <vector>
 
-class CommandPattern
-{
+class Parseline {
 public:
-    using Callback = std::function<void(const std::vector<std::string>& args)>;
+    void addCommand(const std::string& pattern,
+                    const std::string& help_text,
+                    std::function<void(const ArgParser&)> handler);
 
-    CommandPattern(std::string regexPattern,
-                   std::string description,
-                   Callback callback);
-
-    bool matches(const std::string& input, std::vector<std::string>& extractedArgs) const;
-
-    void execute(const std::vector<std::string>& args) const;
-
-    const std::string& getDescription() const;
-    const std::string& getRegexPattern() const;
+    void startREPL(const std::string& prompt = ">>> ");
+    void showHelp(const std::string& pattern = "") const;
+    void showHistory() const;
 
 private:
-    std::string _regexPattern;
-    std::string _description;
-    Callback _callback;
-    std::regex _regex;
+    struct CommandEntry {
+        std::regex pattern;
+        std::string raw_pattern;
+        std::function<void(const ArgParser&)> handler;
+    };
+
+    std::vector<CommandEntry> command_handlers;
+    CommandHistory history;
+    CommandHelp help;
+    CommandSuggester suggester;
+    ArgParser parser;
+
+    std::vector<std::string> splitPipe(const std::string& line);
+    static std::string trim(const std::string& s);
 };
 
-class CommandDispatcher
-{
-public:
-    void registerCommand(const CommandPattern& command);
-
-    bool dispatch(const std::string& input);
-
-    void printHelp() const;
-
-private:
-    std::vector<CommandPattern> _commands;
-};
-
-class CommandREPL
-{
-public:
-    CommandREPL(CommandDispatcher& dispatcher,
-                std::string prompt = "> ");
-
-    void run();
-
-private:
-    CommandDispatcher& _dispatcher;
-    std::string _prompt;
-};
-
-#endif // PARSELINE_H
+#endif

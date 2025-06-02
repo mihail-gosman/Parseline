@@ -1,88 +1,69 @@
 #include "Parseline.h"
+#include <iostream>
+#include <sstream>
+#include <algorithm>
 
-CommandPattern::CommandPattern(std::string regexPattern,
-                             std::string description,
-                             Callback callback)
-    : _regexPattern(std::move(regexPattern)),
-      _description(std::move(description)),
-      _callback(std::move(callback)),
-      _regex(_regexPattern)
-{}
-
-bool CommandPattern::matches(const std::string& input, std::vector<std::string>& extractedArgs) const
-{
-    std::smatch matchResults;
-    if (std::regex_match(input, matchResults, _regex))
-    {
-        extractedArgs.clear();
-        for (size_t i = 1; i < matchResults.size(); ++i)
-        {
-            extractedArgs.push_back(matchResults[i].str());
-        }
-        return true;
-    }
-    return false;
+void Parseline::addCommand(const std::string& pattern,
+                           const std::string& help_text,
+                           std::function<void(const ArgParser&)> handler) {
+    command_handlers.push_back({std::regex("^" + pattern + "$"), pattern, handler});
+    help.add(pattern, help_text);
+    suggester.addCommand(pattern);
 }
 
-void CommandPattern::execute(const std::vector<std::string>& args) const
-{
-    _callback(args);
-}
+void Parseline::startREPL(const std::string& prompt) {
+    std::string input_line;
+    while (true) {
+        std::cout << prompt;
+        if (!std::getline(std::cin, input_line)) break;
 
-const std::string& CommandPattern::getDescription() const
-{
-    return _description;
-}
+        history.add(input_line);
+        if (input_line == "exit") break;
 
-const std::string& CommandPattern::getRegexPattern() const
-{
-    return _regexPattern;
-}
+        auto commands = splitPipe(input_line);
+        for (const auto& command_str : commands) {
+            parser.parse(command_str);
+            const auto& args = parser.getArgs();
+            if (args.empty()) continue;
 
-void CommandDispatcher::registerCommand(const CommandPattern& command)
-{
-    _commands.push_back(command);
-}
+            const std::string& command = args[0];
+            bool matched = false;
+            for (const auto& entry : command_handlers) {
+                if (std::regex_match(command, entry.pattern)) {
+                    entry.handler(parser);
+                    matched = true;
+                    break;
+                }
+            }
 
-bool CommandDispatcher::dispatch(const std::string& input)
-{
-    for (const auto& cmd : _commands)
-    {
-        std::vector<std::string> args;
-        if (cmd.matches(input, args))
-        {
-            cmd.execute(args);
-            return true;
+            if (!matched) {
+                std::cout << "Unknown command: " << command << "\n";
+                suggester.suggest(command);
+            }
         }
     }
-    std::cerr << "Error: Unrecognized command: '" << input << "'\n";
-    return false;
 }
 
-void CommandDispatcher::printHelp() const
-{
-    std::cout << "Available commands:\n";
-    for (const auto& cmd : _commands)
-    {
-        std::cout << "  Pattern: " << cmd.getRegexPattern() << "\n"
-                  << "  Description: " << cmd.getDescription() << "\n\n";
-    }
+void Parseline::showHelp(const std::string& pattern) const {
+    help.show(pattern);
 }
 
-CommandREPL::CommandREPL(CommandDispatcher& dispatcher, std::string prompt)
-    : _dispatcher(dispatcher), _prompt(std::move(prompt))
-{}
+void Parseline::showHistory() const {
+    history.show();
+}
 
-void CommandREPL::run()
-{
-    std::string inputLine;
-    while (true)
-    {
-        std::cout << _prompt;
-        if (!std::getline(std::cin, inputLine))
-            break;
-
-        if (!_dispatcher.dispatch(inputLine))
-            std::cout << "Try 'help' for a list of commands.\n";
+std::vector<std::string> Parseline::splitPipe(const std::string& line) {
+    std::vector<std::string> parts;
+    std::string part;
+    std::istringstream stream(line);
+    while (std::getline(stream, part, '|')) {
+        parts.push_back(trim(part));
     }
+    return parts;
+}
+
+std::string Parseline::trim(const std::string& s) {
+    size_t start = s.find_first_not_of(" \t");
+    size_t end = s.find_last_not_of(" \t");
+    return (start == std::string::npos) ? "" : s.substr(start, end - start + 1);
 }
